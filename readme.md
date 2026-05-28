@@ -1,22 +1,40 @@
-# Comparación de ejecución IO-BOUND en Python
+# Comparación de Threads y Procesos en Python
 
 ## Objetivo
 
-Comparar el rendimiento de tres formas de ejecución en Python:
+Comparar el rendimiento de distintas formas de concurrencia en Python utilizando:
 
-## TAREAS
+- Threads (Hilos)
+- Procesos (Multiprocessing)
 
-- Secuencial
-- Hilos (Threads) Nico y Franco
-- Procesos (Multiprocessing) Ana y Tibi
+sobre dos tipos de tareas:
 
-utilizando tareas **IO-bound**, es decir, tareas que dependen de operaciones de entrada/salida como descargas web.
+- CPU-bound
+- IO-bound
+
+---
+
+# ¿Qué es una tarea CPU-bound?
+
+Una tarea CPU-bound es una tarea que exige mucho procesamiento del procesador.
+
+El rendimiento depende principalmente del uso de CPU.
+
+Ejemplos:
+
+- cálculos matemáticos
+- procesamiento de datos
+- algoritmos complejos
+
+En este proyecto se realiza una suma intensiva utilizando millones de iteraciones.
 
 ---
 
 # ¿Qué es una tarea IO-bound?
 
-Una tarea IO-bound es una tarea que pasa gran parte del tiempo esperando:
+Una tarea IO-bound es una tarea que pasa gran parte del tiempo esperando operaciones de entrada/salida.
+
+Ejemplos:
 
 - internet
 - archivos
@@ -27,137 +45,133 @@ En este proyecto se realizan descargas de páginas web usando la librería `requ
 
 ---
 
-# Archivos utilizados
+# Archivos del proyecto
 
 ```text
-io_secuencial.py
+cpu_threads.py
+cpu_procesos.py
 io_threads.py
 io_procesos.py
-```
+1) CPU-BOUND con Threads
 
----
+Archivo:
 
-# 1) Ejecución Secuencial
+cpu_threads.py
+¿Cómo funciona?
 
-## ¿Cómo funciona?
+Se crean varios hilos que realizan cálculos matemáticos al mismo tiempo.
 
-Las páginas se descargan una por una.
+Todos los hilos comparten la misma memoria del proceso principal.
 
-El programa espera que termine una descarga para comenzar la siguiente.
+Características
+Menor consumo de memoria
+Fácil de implementar
+No aprovecha completamente múltiples núcleos por el GIL de Python
+Resultado esperado
+=== THREADS ===
+Tiempo: 5.20 segundos
+CPU usado: 25.4%
+Memoria usada: 32.10 MB
+2) CPU-BOUND con Procesos
 
-## Características
+Archivo:
 
-- Más simple
-- Menor consumo de recursos
-- Más lento
+cpu_procesos.py
+¿Cómo funciona?
 
-## Resultado esperado
+Se crean múltiples procesos independientes para realizar cálculos intensivos.
 
-```python
-=== SECUENCIAL IO-BOUND ===
-Tiempo: 11.80 segundos
-CPU usado: 8.5%
-Memoria usada: 30.10 MB
-```
+Cada proceso utiliza su propia memoria y puede ejecutarse en diferentes núcleos del procesador.
 
----
+Características
+Mejor rendimiento en tareas CPU-bound
+Mayor uso de memoria
+Aprovecha múltiples núcleos del CPU
+Resultado esperado
+=== PROCESOS ===
+Tiempo: 2.90 segundos
+CPU usado: 78.6%
+Memoria usada: 48.50 MB
+3) IO-BOUND con Threads
 
-# 2) Ejecución con Hilos (Threads)
+Archivo:
 
-## ¿Cómo funciona?
+io_threads.py
+¿Cómo funciona?
 
-Se crean varios hilos que trabajan al mismo tiempo compartiendo memoria.
+Se crean varios hilos para descargar páginas web simultáneamente.
 
-Mientras un hilo espera internet, otro puede continuar ejecutándose.
+Mientras un hilo espera respuesta de internet, otro continúa ejecutándose.
 
-## Características
+Características
+Muy eficiente para tareas IO-bound
+Bajo consumo de memoria
+Excelente aprovechamiento del tiempo de espera
+Resultado esperado
+=== THREADS I/O-BOUND ===
+Tiempo total: 2.01 segundos
+Uso de CPU: 19.1%
+Uso de memoria: 38.27 MB
+4) IO-BOUND con Procesos
 
-- Mucho más rápido para tareas IO-bound
-- Bajo consumo de memoria
-- Mejor aprovechamiento del tiempo de espera
+Archivo:
 
-## Resultado esperado
+io_procesos.py
+¿Cómo funciona?
 
-```python
-=== HILOS IO-BOUND ===
-Tiempo: 2.01 segundos
-CPU usado: 19.1%
-Memoria usada: 38.27 MB
-```
+Cada descarga web se ejecuta en un proceso independiente.
 
----
+Cada proceso tiene sus propios recursos y memoria.
 
-# 3) Ejecución con Procesos
-
-## ¿Cómo funciona?
-
-Cada tarea se ejecuta en un proceso independiente.
-
-Cada proceso tiene su propia memoria y recursos.
-
-## Características
-
-- Muy rápido
-- Mayor consumo de memoria
-- Mayor uso de CPU
-
-## Resultado esperado
-
-```python
-=== PROCESOS IO-BOUND ===
-Tiempo: 2.36 segundos
-CPU usado: 31.5%
-Memoria usada: 45.80 MB
-```
-
----
-
-# Librerías utilizadas
-
-```python
-requests
+Características
+Buen rendimiento
+Mayor consumo de memoria
+Más pesado que threads para tareas IO-bound
+Resultado esperado
+=== PROCESOS I/O-BOUND ===
+Tiempo total: 2.36 segundos
+Uso de CPU: 31.5%
+Uso de memoria: 45.80 MB
+Librerías utilizadas
 threading
 multiprocessing
+requests
 psutil
 time
-```
-
----
-
-# Instalación en entorno virtual
-
-## 1) Crear entorno virtual
+os
+Instalación del entorno virtual
+1) Crear entorno virtual
 
 Abrir la terminal en VSCode y ejecutar:
 
-```bash
 python -m venv venv
-```
-
----
-
-## 2) Activar entorno virtual
-
-### En Windows
-
-```bash
+2) Activar entorno virtual
+En Windows
 venv\Scripts\activate
-```
+3) Instalar dependencias
+pip install requests psutil
 
----
+o utilizando:
 
-## 3) Instalar librerías necesarias
-
-```bash
 pip install -r requirements.txt
-```
+Conclusión
+CPU-bound
 
----
+Las tareas CPU-bound funcionan mejor utilizando procesos.
 
-# Conclusión
+Esto sucede porque Python tiene una limitación llamada GIL (Global Interpreter Lock), que impide que múltiples threads ejecuten código Python intensivo al mismo tiempo.
 
-Las tareas IO-bound funcionan mucho mejor utilizando concurrencia.
+Por eso:
 
-- El modo secuencial tarda más porque trabaja de a una tarea.
-- Los hilos mejoran mucho el tiempo aprovechando las esperas de internet.
-- Los procesos también aceleran la ejecución, aunque consumen más recursos del sistema.
+Threads consumen menos memoria, pero no mejoran demasiado el rendimiento.
+Procesos aprovechan múltiples núcleos y aceleran los cálculos.
+IO-bound
+
+Las tareas IO-bound funcionan muy bien utilizando threads.
+
+Mientras un hilo espera respuesta de internet, otros pueden seguir trabajando.
+
+Por eso:
+
+Threads ofrecen excelente rendimiento y bajo consumo de recursos.
+Procesos también funcionan, pero consumen más memoria y CPU innecesariamente.
